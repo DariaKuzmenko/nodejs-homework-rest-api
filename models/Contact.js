@@ -4,18 +4,26 @@ import Joi from "joi";
 
 import { handleSaveError, runValidatorsAtUpdate } from "./hooks.js";
 
-const contactSchema = new Schema({
-  name: {
-    type: String,
-    required: [true, "Set name for contact"],
+const contactSchema = new Schema(
+  {
+    name: {
+      type: String,
+      required: [true, "Set name for contact"],
+    },
+    email: String,
+    phone: String,
+    favorite: {
+      type: Boolean,
+      default: false,
+    },
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: "user",
+      require: true,
+    },
   },
-  email: String,
-  phone: String,
-  favorite: {
-    type: Boolean,
-    default: false,
-  },
-});
+  { versionKey: false }
+);
 
 contactSchema.post("save", handleSaveError);
 

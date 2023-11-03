@@ -3,7 +3,26 @@ import { HttpError } from "../helpers/index.js";
 import { ctrlWrapper } from "../decorators/index.js";
 
 const getAll = async (req, res) => {
-  const result = await Contact.find();
+  const { _id: owner } = req.user;
+  const { page = 1, limit = 10 } = req.query;
+  const skip = (page = -1) * limit;
+  const { favorite } = req.query;
+  if (favorite === "true") {
+    const result = await Contact.find(
+      { owner, favorite },
+      "-createAt -updateAt",
+      {
+        skip: 2,
+        limit: 2,
+      }
+    ).populate("owner", "email");
+    res.json(result);
+    return;
+  }
+  const result = await Contact.find({ owner }, "-createAt -updateAt", {
+    skip: 2,
+    limit: 2,
+  }).populate("owner", "email");
   res.json(result);
 };
 
@@ -17,7 +36,8 @@ const getById = async (req, res) => {
 };
 
 const add = async (req, res) => {
-  const result = await Contact.create(req.body);
+  const { _id: owner } = req.user;
+  const result = await Contact.create({ ...req.body, owner });
   res.status(201).json(result);
 };
 
@@ -48,6 +68,21 @@ const deleteById = async (req, res) => {
   res.json({ message: "Delete success" });
 };
 
+const updateSubscription = async (req, res) => {
+  const { id } = req.params;
+  const { subscription } = req.body;
+
+  if (!subscription) {
+    throw HttpError(401);
+  }
+  const result = await User.findByIdAndUpdate(id, { subscription });
+
+  if (!result) {
+    throw HttpError(404);
+  }
+  res.json({ subscription: result.subscription });
+};
+
 export default {
   getAll: ctrlWrapper(getAll),
   getById: ctrlWrapper(getById),
@@ -55,4 +90,5 @@ export default {
   updateById: ctrlWrapper(updateById),
   updateFavorite: ctrlWrapper(updateFavorite),
   deleteById: ctrlWrapper(deleteById),
+  updateSubscription: ctrlWrapper(updateSubscription),
 };
