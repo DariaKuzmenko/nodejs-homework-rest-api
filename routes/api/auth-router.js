@@ -1,8 +1,12 @@
 import express from "express";
 import authController from "../../controllers/auth-controller.js";
-import { authenticate, isEmptyBody } from "../../middlewars/index.js";
+import { authenticate, upload, isEmptyBody } from "../../middlewars/index.js";
 import { validateBody } from "../../decorators/index.js";
-import { userSignupSchema, userSigninSchema } from "../../models/User.js";
+import {
+  userSignupSchema,
+  userSigninSchema,
+  updateSubscriptionSchema,
+} from "../../models/User.js";
 
 const userSignupValidate = validateBody(userSignupSchema);
 const userSigninValidate = validateBody(userSigninSchema);
@@ -33,6 +37,13 @@ authRouter.patch(
   authenticate,
   updateSubscriptionValidate,
   authController.updateSubscription
+);
+
+authRouter.patch(
+  "/avatars",
+  authenticate,
+  upload.single("avatar"),
+  validateBody(authController.updateAvatar)
 );
 
 export default authRouter;

@@ -68,21 +68,6 @@ const deleteById = async (req, res) => {
   res.json({ message: "Delete success" });
 };
 
-const updateSubscription = async (req, res) => {
-  const { id } = req.params;
-  const { subscription } = req.body;
-
-  if (!subscription) {
-    throw HttpError(401);
-  }
-  const result = await User.findByIdAndUpdate(id, { subscription });
-
-  if (!result) {
-    throw HttpError(404);
-  }
-  res.json({ subscription: result.subscription });
-};
-
 export default {
   getAll: ctrlWrapper(getAll),
   getById: ctrlWrapper(getById),
@@ -90,5 +75,4 @@ export default {
   updateById: ctrlWrapper(updateById),
   updateFavorite: ctrlWrapper(updateFavorite),
   deleteById: ctrlWrapper(deleteById),
-  updateSubscription: ctrlWrapper(updateSubscription),
 };
