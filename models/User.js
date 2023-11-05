@@ -23,8 +23,20 @@ const userSchema = new Schema(
       enum: ["starter", "pro", "business"],
       default: "starter",
     },
-    avatarURL: String,
-    token: String,
+    avatarURL: {
+      type: String,
+    },
+    token: {
+      type: String,
+    },
+    verify: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      required: [true, "Verify token is required"],
+    },
   },
   { versionKey: false }
 );
@@ -36,13 +48,13 @@ userSchema.pre("findOneAndUpdate", runValidatorsAtUpdate);
 userSchema.post("findOneAndUpdate", handleSaveError);
 
 export const userSignupSchema = Joi.object({
-  email: Joi.string().email().required(),
+  email: Joi.string().pattern(emailRegexp).required(),
   password: Joi.string().min(6).required(),
   subscription: Joi.string().valid("starter", "pro", "business"),
 });
 
 export const userSigninSchema = Joi.object({
-  email: Joi.string().email().required(),
+  email: Joi.string().pattern(emailRegexp).required(),
   password: Joi.string().min(6).required(),
 });
 
@@ -50,6 +62,10 @@ export const updateSubscriptionSchema = Joi.object({
   subscription: Joi.string()
     .valid(...["starter", "pro", "business"])
     .required(),
+});
+
+export const userEmailSchema = Joi.object({
+  email: Joi.string().pattern(emailRegexp).required(),
 });
 
 const User = model("user", userSchema);
